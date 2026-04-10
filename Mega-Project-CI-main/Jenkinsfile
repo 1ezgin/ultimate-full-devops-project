@@ -72,13 +72,22 @@ pipeline {
             steps {
                 dir('Mega-Project-CI-main') {
                     script {
-                        withDockerRegistry(credentialsId: 'docker-credentials') {
+                        // ПРОВЕРЬ: ID в Jenkins должен быть именно docker-cred
+                        withDockerRegistry(credentialsId: 'docker-cred') {
                             sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
                             sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
                         }
                     }
                 }
             }
-        }
-    } 
-} 
+        } 
+
+        stage('Publish to Nexus') { 
+            steps { 
+                dir('Mega-Project-CI-main') {
+                    withMaven(globalMavenSettingsConfig: 'devops-amir', maven: 'maven3', traceability: true) {
+                        sh "mvn deploy -DskipTests"
+                    }
+                }
+            } 
+        } 
