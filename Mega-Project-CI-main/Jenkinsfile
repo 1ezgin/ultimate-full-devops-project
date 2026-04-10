@@ -26,6 +26,15 @@ pipeline {
             }
         }
 
+        stage('Package Application') {
+            steps {
+                dir('Mega-Project-CI-main') {
+                    // Создаем тот самый .jar файл
+                    sh "mvn package -DskipTests" 
+                }
+            }
+        }
+
         stage('Sonar Analysis') {
             steps {
                 dir('Mega-Project-CI-main') {
