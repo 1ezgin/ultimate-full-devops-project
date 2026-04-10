@@ -82,7 +82,7 @@ pipeline {
             steps {
                 dir('Mega-Project-CI-main') {
                     script {
-                        withDockerRegistry(credentialsId: 'docker-credentials') {
+                        withDockerRegistry(credentialsId: 'docker-cred') {
                             sh "docker build -t 1ezgin/bankapp:${IMAGE_TAG} ."
                             sh "docker push 1ezgin/bankapp:${IMAGE_TAG}"
                         }
@@ -110,7 +110,6 @@ pipeline {
                                 git config user.name "Jenkins"
                                 git config user.email "jenkins@example.com"
                                 git add manifest.yaml
-                                
                                 if git diff-index --quiet HEAD; then
                                     echo "No changes to commit"
                                 else
@@ -121,6 +120,40 @@ pipeline {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.result ?: 'SUCCESS' 
+                def bannerColor = (pipelineStatus == 'SUCCESS') ? 'green' : 'red'
+
+                def body = """
+                <html>
+                <body>
+                    <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                        <h2>${jobName} - Build #${buildNumber}</h2>
+                        <div style="background-color: ${bannerColor}; padding: 10px;">
+                            <h3 style="color: white;">Pipeline Status: ${pipelineStatus.toUpperCase()}</h3>
+                        </div>
+                        <p>Check the <a href="${env.BUILD_URL}">console output here</a>.</p>
+                    </div>
+                </body>
+                </html>
+                """
+
+                emailext (
+                    subject: "${jobName} - Build #${buildNumber} - ${pipelineStatus.toUpperCase()}",
+                    body: body,
+                    to: 'amirovamir2003@gmail.com',
+                    from: 'jenkins@amir-devops.com',
+                    replyTo: 'amirovamir2003@gmail.com',
+                    mimeType: 'text/html'
+                )
             }
         }
     }
