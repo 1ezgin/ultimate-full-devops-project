@@ -90,5 +90,16 @@ pipeline {
                 }
             } 
         } 
+
+        stage('Docker Build and Tag') {
+    steps {
+        dir('Mega-Project-CI-main') {
+            script {
+                withDockerRegistry(credentialsId: 'docker-cred') {
+                    sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
+                    sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
+                }
+            }
+        }
     }
-}
+}       
