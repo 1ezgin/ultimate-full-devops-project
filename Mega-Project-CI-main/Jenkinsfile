@@ -12,7 +12,6 @@ pipeline {
     stages {
         stage('Compile') {
             steps {
-                // Заходим в твою подпапку, где лежит pom.xml
                 dir('Mega-Project-CI-main') {
                     sh "mvn clean compile"
                 }
@@ -30,7 +29,6 @@ pipeline {
         stage('Sonar Analysis') {
             steps {
                 dir('Mega-Project-CI-main') {
-                    // 'sonar' — это имя сервера, которое ты должен был дать в Manage Jenkins -> System
                     withSonarQubeEnv('sonar') {
                         sh """
                             $SCANNER_HOME/bin/sonar-scanner \
