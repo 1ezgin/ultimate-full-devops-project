@@ -72,8 +72,7 @@ pipeline {
             steps {
                 dir('Mega-Project-CI-main') {
                     script {
-                        // ПРОВЕРЬ: ID в Jenkins должен быть именно docker-cred
-                        withDockerRegistry(credentialsId: 'docker-cred') {
+                        withDockerRegistry(credentialsId: 'docker-credentials') {
                             sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
                             sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
                         }
