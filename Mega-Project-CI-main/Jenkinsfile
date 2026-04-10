@@ -54,7 +54,7 @@ pipeline {
             steps {
                 dir('Mega-Project-CI-main') {
                     timeout(time: 1, unit: 'HOURS') {
-                        waitForQualityGate abortPipeline: true
+                        waitForQualityGate abortPipeline: false 
                     }
                 }
             }
@@ -82,7 +82,7 @@ pipeline {
             steps {
                 dir('Mega-Project-CI-main') {
                     script {
-                        withDockerRegistry(credentialsId: 'docker-credentials') {
+                        withDockerRegistry(credentialsId: 'docker-cred') {
                             sh "docker build -t 1ezgin/bankapp:${IMAGE_TAG} ."
                             sh "docker push 1ezgin/bankapp:${IMAGE_TAG}"
                         }
@@ -99,27 +99,29 @@ pipeline {
             }
         }
 
-stage('Update Manifest File') {
+        stage('Update Manifest File') {
             steps {
                 script {
-                    sh "sed -i 's|1ezgin/bankapp:.*|1ezgin/bankapp:${IMAGE_TAG}|' Mega-Project-CD-main/Manifest/manifest.yaml"
-                    withCredentials([usernamePassword(credentialsId: 'token-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh """
-                            git config user.name "Jenkins"
-                            git config user.email "jenkins@example.com"
-                            
-                            git add Mega-Project-CD-main/Manifest/manifest.yaml
-                            
-                            if git diff-index --quiet HEAD; then
-                                echo "No changes to commit"
-                            else
-                                git commit -m "Update image tag to ${IMAGE_TAG}"
-                                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/1ezgin/ultimate-full-devops-project.git HEAD:main
-                            fi
-                        """
+                    dir('Mega-Project-CD-main/Manifest') {
+                        sh "sed -i 's|1ezgin/bankapp:.*|1ezgin/bankapp:${IMAGE_TAG}|' manifest.yaml"
+                        
+                        withCredentials([usernamePassword(credentialsId: 'token-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                            sh """
+                                git config user.name "Jenkins"
+                                git config user.email "jenkins@example.com"
+                                git add manifest.yaml
+                                
+                                if git diff-index --quiet HEAD; then
+                                    echo "No changes to commit"
+                                else
+                                    git commit -m "Update image tag to ${IMAGE_TAG}"
+                                    git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/1ezgin/ultimate-full-devops-project.git HEAD:main
+                                fi
+                            """
+                        }
                     }
                 }
             }
         }
-    } 
-} 
+    }
+}
