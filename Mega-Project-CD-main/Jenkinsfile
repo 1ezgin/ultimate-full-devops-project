@@ -23,7 +23,6 @@ pipeline {
                         dir('Mega-Project-CD-main/Manifest') {
                             sh "kubectl apply -f manifest.yaml -n webapps"
                             sh "kubectl apply -f HPA.yaml -n webapps"
-                            sh "kubectl apply -f ci.yaml"
                             sh "kubectl apply -f ingress.yaml -n webapps"
     
                             echo "Waiting 30 seconds for AWS and Kubernetes to spin up resources..."
