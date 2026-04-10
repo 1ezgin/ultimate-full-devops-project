@@ -4,7 +4,6 @@ metadata:
   name: bankapp-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   rules:
@@ -14,6 +13,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: bankapp-service
+                name: bankapp-service 
                 port:
                   number: 80
