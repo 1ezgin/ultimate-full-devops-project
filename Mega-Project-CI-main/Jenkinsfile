@@ -102,25 +102,19 @@ pipeline {
         stage('Update Manifest File') {
             steps {
                 script {
-                    cleanWs()
-                    withCredentials([usernamePassword(credentialsId: 'token-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        
-                        sh "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/1ezgin/Mega-Project-CD-main.git"
-                        
-                        dir('Mega-Project-CD-main') {
-                            sh "sed -i 's|1ezgin/bankapp:.*|1ezgin/bankapp:${IMAGE_TAG}|' manifest.yaml"
-                            
+                    dir('Mega-Project-CD-main/Manifest') {
+                        sh "sed -i 's|1ezgin/bankapp:.*|1ezgin/bankapp:${IMAGE_TAG}|' manifest.yaml"
+                        withCredentials([usernamePassword(credentialsId: 'token-github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                             sh """
                                 git config user.name "Jenkins"
                                 git config user.email "jenkins@example.com"
                                 git add manifest.yaml
                                 git commit -m "Update image tag to ${IMAGE_TAG}"
-                                git push origin main
+                                # ВАЖНО: убедись, что ветка называется main
+                                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/1ezgin/ultimate-full-devops-project.git HEAD:main
                             """
                         }
                     }
                 }
             }
         }
-    } 
-}
