@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
+        IMAGE_TAG = "v${BUILD_NUMBER}" 
     }
 
     stages {
@@ -29,7 +30,6 @@ pipeline {
         stage('Package Application') {
             steps {
                 dir('Mega-Project-CI-main') {
-                    // Создаем тот самый .jar файл
                     sh "mvn package -DskipTests" 
                 }
             }
@@ -96,7 +96,7 @@ pipeline {
         dir('Mega-Project-CI-main') {
             script {
                 withDockerRegistry(credentialsId: 'docker-cred') {
-                    sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
+                    sh "docker build -t 1ezgin/bankapp:$IMAGE_TAG ."
                     sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
                 }
             }
