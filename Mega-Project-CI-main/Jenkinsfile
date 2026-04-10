@@ -48,7 +48,7 @@ pipeline {
                     }
                 }
             }
-        } 
+        }
 
         stage('Quality Gate Check') {
             steps {
@@ -68,19 +68,6 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker') {
-            steps {
-                dir('Mega-Project-CI-main') {
-                    script {
-                        withDockerRegistry(credentialsId: 'docker-credentials') {
-                            sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
-                            sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
-                        }
-                    }
-                }
-            }
-        } 
-
         stage('Publish to Nexus') { 
             steps { 
                 dir('Mega-Project-CI-main') {
@@ -89,17 +76,27 @@ pipeline {
                     }
                 }
             } 
-        } 
+        }
 
-        stage('Docker Build and Tag') {
-    steps {
-        dir('Mega-Project-CI-main') {
-            script {
-                withDockerRegistry(credentialsId: 'docker-cred') {
-                    sh "docker build -t 1ezgin/bankapp:$IMAGE_TAG ."
-                    sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
+        stage('Docker Build, Tag & Push') {
+            steps {
+                dir('Mega-Project-CI-main') {
+                    script {
+                        withDockerRegistry(credentialsId: 'docker-cred') {
+                            sh "docker build -t 1ezgin/bankapp:${IMAGE_TAG} ."
+                            sh "docker push 1ezgin/bankapp:${IMAGE_TAG}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Scan Image') {
+            steps {
+                dir('Mega-Project-CI-main') {
+                    sh "trivy image --format table -o image-report.html 1ezgin/bankapp:${IMAGE_TAG}"
                 }
             }
         }
     }
-}       
+}
