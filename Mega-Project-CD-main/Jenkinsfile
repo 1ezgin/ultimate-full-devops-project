@@ -16,21 +16,18 @@ pipeline {
                     withKubeConfig(
                         caCertificate: '', 
                         clusterName: 'amir-project-cluster', 
-                        contextName: '', 
                         credentialsId: 'k8-token', 
                         namespace: 'webapps', 
-                        restrictKubeConfigAccess: false, 
                         serverUrl: 'https://96D7D7E2408358362593950D9CF68C95.gr7.eu-central-1.eks.amazonaws.com'
                     ) {
                         dir('Mega-Project-CD-main/Manifest') {
                             sh "kubectl apply -f manifest.yaml -n webapps"
                             sh "kubectl apply -f HPA.yaml -n webapps"
+                            sh "kubectl apply -f ci.yaml"
+                            sh "kubectl apply -f ingress.yaml -n webapps"
                             
-                            echo "Waiting for pods to pull new images..."
-                            sleep 20
-                            
-                            sh "kubectl get pods -n webapps"
-                            sh "kubectl get service -n webapps"
+                            echo "Deployment finished! Checking status..."
+                            sh "kubectl get all -n webapps"
                         }
                     }
                 }
