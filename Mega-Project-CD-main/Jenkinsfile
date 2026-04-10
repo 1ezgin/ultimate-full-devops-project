@@ -4,18 +4,35 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'git', url: 'https://github.com/jaiswaladi246/Mega-Project-CD.git'
+                git branch: 'main', 
+                    credentialsId: '1ezgin', 
+                    url: 'https://github.com/1ezgin/ultimate-full-devops-project.git'
             }
         }
         
         stage('Kubernetes Deployment') {
             steps {
-                withKubeConfig(caCertificate: '', clusterName: 'devopsshack-cluster', contextName: '', credentialsId: 'k8-token', namespace: 'webapps', restrictKubeConfigAccess: false, serverUrl: 'https://952FB702C508F688D873376083B31DF5.gr7.ap-south-1.eks.amazonaws.com') {
-                    sh "kubectl apply -f Manifest/manifest.yaml -n webapps"
-                    sh "kubectl apply -f Manifest/HPA.yaml "
-                    sleep 30
-                    sh "kubectl get pods -n webapps"
-                    sh "kubectl get service -n webapps"
+                script {
+                    withKubeConfig(
+                        caCertificate: '', 
+                        clusterName: 'amir-project-cluster', 
+                        contextName: '', 
+                        credentialsId: 'k8-token', 
+                        namespace: 'webapps', 
+                        restrictKubeConfigAccess: false, 
+                        serverUrl: 'https://96D7D7E2408358362593950D9CF68C95.gr7.eu-central-1.eks.amazonaws.com'
+                    ) {
+                        dir('Mega-Project-CD-main/Manifest') {
+                            sh "kubectl apply -f manifest.yaml -n webapps"
+                            sh "kubectl apply -f HPA.yaml -n webapps"
+                            
+                            echo "Waiting for pods to pull new images..."
+                            sleep 20
+                            
+                            sh "kubectl get pods -n webapps"
+                            sh "kubectl get service -n webapps"
+                        }
+                    }
                 }
             }
         }
