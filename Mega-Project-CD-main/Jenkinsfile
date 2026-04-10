@@ -25,6 +25,9 @@ pipeline {
                             sh "kubectl apply -f HPA.yaml -n webapps"
                             sh "kubectl apply -f ci.yaml"
                             sh "kubectl apply -f ingress.yaml -n webapps"
+    
+                            echo "Waiting 30 seconds for AWS and Kubernetes to spin up resources..."
+                            sleep 30 
                             
                             echo "Deployment finished! Checking status..."
                             sh "kubectl get all -n webapps"
