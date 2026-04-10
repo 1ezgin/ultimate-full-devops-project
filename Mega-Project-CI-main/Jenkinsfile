@@ -39,6 +39,27 @@ pipeline {
                     }
                 }
             }
+        } 
+
+        stage('Trivy FS Scan') {
+            steps {
+                dir('Mega-Project-CI-main') {
+                    sh "trivy fs --format table -o fs-report.html ."
+                }
+            }
         }
-    }
-}
+
+        stage('Build & Push Docker') {
+            steps {
+                dir('Mega-Project-CI-main') {
+                    script {
+                        withDockerRegistry(credentialsId: 'docker-cred') {
+                            sh "docker build -t 1ezgin/bankapp:v${BUILD_NUMBER} ."
+                            sh "docker push 1ezgin/bankapp:v${BUILD_NUMBER}"
+                        }
+                    }
+                }
+            }
+        }
+    } 
+} 
